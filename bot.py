@@ -50,159 +50,225 @@ class TronKeeper:
         minutes, seconds = divmod(remainder, 60)
         return f"{int(hours):02}:{int(minutes):02}:{int(seconds):02}"
 
-    def user_login(self, query: str):
+    def user_login(self, query: str, retries=3):
         url = 'https://bot-api.tronkeeper.app/bot/auth'
         data = json.dumps({"data":query})
         self.headers.update({
             'Content-Type': 'application/json'
         })
+        for attempt in range(retries):
+            try:
+                response = self.session.post(url, headers=self.headers, data=data, timeout=10)
+                response.raise_for_status()
+                return response.json()['data']['token']
+            except (requests.RequestException, requests.Timeout, ValueError) as e:
+                if attempt < retries - 1:
+                    print(
+                        f"{Fore.RED+Style.BRIGHT}HTTP ERROR{Style.RESET_ALL}"
+                        f"{Fore.YELLOW+Style.BRIGHT} Retrying... {Style.RESET_ALL}"
+                        f"{Fore.WHITE+Style.BRIGHT}[{attempt+1}/{retries}]{Style.RESET_ALL}",
+                        end="\r",
+                        flush=True
+                    )
+                    time.sleep(2)
+                else:
+                    return None
 
-        response = self.session.post(url, headers=self.headers, data=data)
-        result = response.json()
-        if response.status_code == 200:
-            if result and result['success']:
-                return result['data']['token']
-            else:
-                return None
-        else:
-            return None
-
-    def user_profile(self, token: str):
+    def user_profile(self, token: str, retries=3):
         url = 'https://bot-api.tronkeeper.app/bot/profile'
         self.headers.update({
             'Authorization': f'Bearer {token}',
             'Content-Type': 'application/json'
         })
+        for attempt in range(retries):
+            try:
+                response = self.session.get(url, headers=self.headers, timeout=10)
+                response.raise_for_status()
+                return response.json()['data']
+            except (requests.RequestException, requests.Timeout, ValueError) as e:
+                if attempt < retries - 1:
+                    print(
+                        f"{Fore.RED+Style.BRIGHT}HTTP ERROR{Style.RESET_ALL}"
+                        f"{Fore.YELLOW+Style.BRIGHT} Retrying... {Style.RESET_ALL}"
+                        f"{Fore.WHITE+Style.BRIGHT}[{attempt+1}/{retries}]{Style.RESET_ALL}",
+                        end="\r",
+                        flush=True
+                    )
+                    time.sleep(2)
+                else:
+                    return None
 
-        response = self.session.get(url, headers=self.headers)
-        result = response.json()
-        if response.status_code == 200:
-            if result and result['success']:
-                return result['data']
-            else:
-                return None
-        else:
-            return None
-
-    def user_verify(self, token: str):
+    def user_verify(self, token: str, retries=3):
         url = 'https://bot-api.tronkeeper.app/bot/verify'
         self.headers.update({
             'Authorization': f'Bearer {token}',
             'Content-Type': 'application/json'
         })
-
-        response = self.session.get(url, headers=self.headers)
-        result = response.json()
-        if response.status_code == 200:
-            if result and result['success']:
-                return result['data']
-            else:
-                return None
-        else:
-            return None
+        for attempt in range(retries):
+            try:
+                response = self.session.get(url, headers=self.headers, timeout=10)
+                response.raise_for_status()
+                return response.json()['data']
+            except (requests.RequestException, requests.Timeout, ValueError) as e:
+                if attempt < retries - 1:
+                    print(
+                        f"{Fore.RED+Style.BRIGHT}HTTP ERROR{Style.RESET_ALL}"
+                        f"{Fore.YELLOW+Style.BRIGHT} Retrying... {Style.RESET_ALL}"
+                        f"{Fore.WHITE+Style.BRIGHT}[{attempt+1}/{retries}]{Style.RESET_ALL}",
+                        end="\r",
+                        flush=True
+                    )
+                    time.sleep(2)
+                else:
+                    return None
         
-    def hold_usdt(self, token: str):
+    def hold_usdt(self, token: str, retries=3):
         url = 'https://bot-api.tronkeeper.app/daily/hold'
         self.headers.update({
             'Authorization': f'Bearer {token}',
             'Content-Type': 'application/json'
         })
-
-        response = self.session.get(url, headers=self.headers)
-        result = response.json()
-        if response.status_code == 200:
-            if result and result['success']:
-                return result['data']
-            else:
-                return None
-        else:
-            return None
+        for attempt in range(retries):
+            try:
+                response = self.session.get(url, headers=self.headers, timeout=10)
+                response.raise_for_status()
+                return response.json()['data']
+            except (requests.RequestException, requests.Timeout, ValueError) as e:
+                if attempt < retries - 1:
+                    print(
+                        f"{Fore.RED+Style.BRIGHT}HTTP ERROR{Style.RESET_ALL}"
+                        f"{Fore.YELLOW+Style.BRIGHT} Retrying... {Style.RESET_ALL}"
+                        f"{Fore.WHITE+Style.BRIGHT}[{attempt+1}/{retries}]{Style.RESET_ALL}",
+                        end="\r",
+                        flush=True
+                    )
+                    time.sleep(2)
+                else:
+                    return None
         
-    def check_ton(self, token: str):
+    def check_ton(self, token: str, retries=3):
         url = 'https://bot-api.tronkeeper.app/ton/check-hold'
         self.headers.update({
             'Authorization': f'Bearer {token}',
             'Content-Type': 'application/json'
         })
-
-        response = self.session.get(url, headers=self.headers)
-        result = response.json()
-        if response.status_code == 200:
-            if result and result['success']:
-                return result['data']['ton']
-            else:
-                return None
-        else:
-            return None
+        for attempt in range(retries):
+            try:
+                response = self.session.get(url, headers=self.headers, timeout=10)
+                response.raise_for_status()
+                return response.json()['data']['ton']
+            except (requests.RequestException, requests.Timeout, ValueError) as e:
+                if attempt < retries - 1:
+                    print(
+                        f"{Fore.RED+Style.BRIGHT}HTTP ERROR{Style.RESET_ALL}"
+                        f"{Fore.YELLOW+Style.BRIGHT} Retrying... {Style.RESET_ALL}"
+                        f"{Fore.WHITE+Style.BRIGHT}[{attempt+1}/{retries}]{Style.RESET_ALL}",
+                        end="\r",
+                        flush=True
+                    )
+                    time.sleep(2)
+                else:
+                    return None
         
-    def hold_ton(self, token: str):
+    def hold_ton(self, token: str, retries=3):
         url = 'https://bot-api.tronkeeper.app/ton/hold'
         self.headers.update({
             'Authorization': f'Bearer {token}',
             'Content-Type': 'application/json'
         })
-
-        response = self.session.get(url, headers=self.headers)
-        result = response.json()
-        if response.status_code == 200:
-            if result and result['success']:
-                return result['data']
-            else:
-                return None
-        else:
-            return None
+        for attempt in range(retries):
+            try:
+                response = self.session.get(url, headers=self.headers, timeout=10)
+                response.raise_for_status()
+                return response.json()['data']
+            except (requests.RequestException, requests.Timeout, ValueError) as e:
+                if attempt < retries - 1:
+                    print(
+                        f"{Fore.RED+Style.BRIGHT}HTTP ERROR{Style.RESET_ALL}"
+                        f"{Fore.YELLOW+Style.BRIGHT} Retrying... {Style.RESET_ALL}"
+                        f"{Fore.WHITE+Style.BRIGHT}[{attempt+1}/{retries}]{Style.RESET_ALL}",
+                        end="\r",
+                        flush=True
+                    )
+                    time.sleep(2)
+                else:
+                    return None
         
-    def check_tonarx(self, token: str):
+    def check_tonarx(self, token: str, retries=3):
         url = 'https://bot-api.tronkeeper.app/tonarx/check-hold'
         self.headers.update({
             'Authorization': f'Bearer {token}',
             'Content-Type': 'application/json'
         })
-
-        response = self.session.get(url, headers=self.headers)
-        result = response.json()
-        if response.status_code == 200:
-            if result and result['success']:
-                return result['data']['limit']
-            else:
-                return None
-        else:
-            return None
+        for attempt in range(retries):
+            try:
+                response = self.session.get(url, headers=self.headers, timeout=10)
+                response.raise_for_status()
+                return response.json()['data']['limit']
+            except (requests.RequestException, requests.Timeout, ValueError) as e:
+                if attempt < retries - 1:
+                    print(
+                        f"{Fore.RED+Style.BRIGHT}HTTP ERROR{Style.RESET_ALL}"
+                        f"{Fore.YELLOW+Style.BRIGHT} Retrying... {Style.RESET_ALL}"
+                        f"{Fore.WHITE+Style.BRIGHT}[{attempt+1}/{retries}]{Style.RESET_ALL}",
+                        end="\r",
+                        flush=True
+                    )
+                    time.sleep(2)
+                else:
+                    return None
         
-    def hold_tonarx(self, token: str):
+    def hold_tonarx(self, token: str, retries=3):
         url = 'https://bot-api.tronkeeper.app/tonarx/hold'
         self.headers.update({
             'Authorization': f'Bearer {token}',
             'Content-Type': 'application/json'
         })
-
-        response = self.session.get(url, headers=self.headers)
-        result = response.json()
-        if response.status_code == 200:
-            if result and result['success']:
-                return result['data']
-            else:
-                return None
-        else:
-            return None
+        for attempt in range(retries):
+            try:
+                response = self.session.get(url, headers=self.headers, timeout=10)
+                response.raise_for_status()
+                return response.json()['data']
+            except (requests.RequestException, requests.Timeout, ValueError) as e:
+                if attempt < retries - 1:
+                    print(
+                        f"{Fore.RED+Style.BRIGHT}HTTP ERROR{Style.RESET_ALL}"
+                        f"{Fore.YELLOW+Style.BRIGHT} Retrying... {Style.RESET_ALL}"
+                        f"{Fore.WHITE+Style.BRIGHT}[{attempt+1}/{retries}]{Style.RESET_ALL}",
+                        end="\r",
+                        flush=True
+                    )
+                    time.sleep(2)
+                else:
+                    return None
         
-    def complete_tasks(self, token: str, task_id: int):
+    def complete_tasks(self, token: str, task_id: int, retries=3):
         url = 'https://bot-api.tronkeeper.app/bot/tasks'
         data = json.dumps({'id':task_id, 'code':''})
         self.headers.update({
             'Authorization': f'Bearer {token}',
             'Content-Type': 'application/json'
         })
-
-        response = self.session.post(url, headers=self.headers, data=data)
-        result = response.json()
-        if response.status_code == 200:
-            if result and result['success']:
-                return result['data']
-            else:
-                return None
-        else:
-            return None
+        for attempt in range(retries):
+            try:
+                response = self.session.post(url, headers=self.headers, data=data, timeout=10)
+                if response.status_code == 500:
+                    return None
+                
+                response.raise_for_status()
+                return response.json()['data']
+            except (requests.RequestException, requests.Timeout, ValueError) as e:
+                if attempt < retries - 1:
+                    print(
+                        f"{Fore.RED+Style.BRIGHT}HTTP ERROR{Style.RESET_ALL}"
+                        f"{Fore.YELLOW+Style.BRIGHT} Retrying... {Style.RESET_ALL}"
+                        f"{Fore.WHITE+Style.BRIGHT}[{attempt+1}/{retries}]{Style.RESET_ALL}",
+                        end="\r",
+                        flush=True
+                    )
+                    time.sleep(2)
+                else:
+                    return None
 
     def process_query(self, query: str):
         token = self.user_login(query)
