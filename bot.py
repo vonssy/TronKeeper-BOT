@@ -204,7 +204,7 @@ class TronKeeper:
             try:
                 response = self.session.get(url, headers=self.headers, timeout=10)
                 response.raise_for_status()
-                return response.json()['data']['limit']
+                return response.json()['data']
             except (requests.RequestException, requests.Timeout, ValueError) as e:
                 if attempt < retries - 1:
                     print(
@@ -409,28 +409,37 @@ class TronKeeper:
                     )
                 time.sleep(1)
 
-                hold_count = self.check_tonarx(token)
-                if hold_count > 0:
-                    while hold_count > 0:
-                        hold = self.hold_tonarx(token)
-                        if hold:
-                            hold_count = hold['limit']
+                tonarx = self.check_tonarx(token)
+                if tonarx:
+                    hold_count = tonarx['limit']
+                    if hold_count > 0:
+                        while hold_count > 0:
+                            hold = self.hold_tonarx(token)
+                            if hold:
+                                hold_count = hold['limit']
+                                self.log(
+                                    f"{Fore.MAGENTA+Style.BRIGHT}[ Hold{Style.RESET_ALL}"
+                                    f"{Fore.WHITE+Style.BRIGHT} TONARX {Style.RESET_ALL}"
+                                    f"{Fore.GREEN+Style.BRIGHT}Is Success{Style.RESET_ALL}"
+                                    f"{Fore.MAGENTA+Style.BRIGHT} ] [ Reward{Style.RESET_ALL}"
+                                    f"{Fore.WHITE+Style.BRIGHT} {hold['prize']['TONARX']} $TONARX {Style.RESET_ALL}"
+                                    f"{Fore.MAGENTA+Style.BRIGHT}] [ Chance{Style.RESET_ALL}"
+                                    f"{Fore.WHITE+Style.BRIGHT} {hold_count} Left {Style.RESET_ALL}"
+                                    f"{Fore.MAGENTA+Style.BRIGHT}]{Style.RESET_ALL}"
+                                )
+                            else:
+                                break
+
+                            time.sleep(1)
+
+                        if hold_count == 0:
                             self.log(
                                 f"{Fore.MAGENTA+Style.BRIGHT}[ Hold{Style.RESET_ALL}"
                                 f"{Fore.WHITE+Style.BRIGHT} TONARX {Style.RESET_ALL}"
-                                f"{Fore.GREEN+Style.BRIGHT}Is Success{Style.RESET_ALL}"
-                                f"{Fore.MAGENTA+Style.BRIGHT} ] [ Reward{Style.RESET_ALL}"
-                                f"{Fore.WHITE+Style.BRIGHT} {hold['prize']['TONARX']} $TONARX {Style.RESET_ALL}"
-                                f"{Fore.MAGENTA+Style.BRIGHT}] [ Chance{Style.RESET_ALL}"
-                                f"{Fore.WHITE+Style.BRIGHT} {hold_count} Left {Style.RESET_ALL}"
-                                f"{Fore.MAGENTA+Style.BRIGHT}]{Style.RESET_ALL}"
+                                f"{Fore.YELLOW+Style.BRIGHT}No Avaialable Chance{Style.RESET_ALL}"
+                                f"{Fore.MAGENTA+Style.BRIGHT} ]{Style.RESET_ALL}"
                             )
-                        else:
-                            break
-
-                        time.sleep(1)
-
-                    if hold_count == 0:
+                    else:
                         self.log(
                             f"{Fore.MAGENTA+Style.BRIGHT}[ Hold{Style.RESET_ALL}"
                             f"{Fore.WHITE+Style.BRIGHT} TONARX {Style.RESET_ALL}"
@@ -441,7 +450,7 @@ class TronKeeper:
                     self.log(
                         f"{Fore.MAGENTA+Style.BRIGHT}[ Hold{Style.RESET_ALL}"
                         f"{Fore.WHITE+Style.BRIGHT} TONARX {Style.RESET_ALL}"
-                        f"{Fore.YELLOW+Style.BRIGHT}No Avaialable Chance{Style.RESET_ALL}"
+                        f"{Fore.RED+Style.BRIGHT}Data Is None{Style.RESET_ALL}"
                         f"{Fore.MAGENTA+Style.BRIGHT} ]{Style.RESET_ALL}"
                     )
                 time.sleep(1)
@@ -490,7 +499,7 @@ class TronKeeper:
             
     def main(self):
         try:
-            with open('query.txt', 'r') as file:
+            with open('data.txt', 'r') as file:
                 queries = [line.strip() for line in file if line.strip()]
 
             while True:
