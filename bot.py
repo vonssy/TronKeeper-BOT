@@ -282,6 +282,14 @@ class TronKeeper:
         
         if token:
             user = self.user_profile(token)
+            if not user:
+                self.log(
+                    f"{Fore.MAGENTA+Style.BRIGHT}[ Account{Style.RESET_ALL}"
+                    f"{Fore.RED+Style.BRIGHT} Data Is None {Style.RESET_ALL}"
+                    f"{Fore.MAGENTA+Style.BRIGHT}]{Style.RESET_ALL}"
+                )
+                return
+            
             wallet = user.get('wallet') if user else None
             if not wallet:
                 verify = self.user_verify(token)
@@ -499,7 +507,7 @@ class TronKeeper:
             
     def main(self):
         try:
-            with open('query.txt', 'r') as file:
+            with open('data.txt', 'r') as file:
                 queries = [line.strip() for line in file if line.strip()]
 
             while True:
